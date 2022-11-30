@@ -1,0 +1,95 @@
+openapi: "3.0.1"
+info:
+  title: "GatorPollsAPI"
+  version: "1.0"
+servers:
+- url: "https://uncayj80z8.execute-api.us-east-1.amazonaws.com/{basePath}"
+  variables:
+    basePath:
+      default: "Production"
+paths:
+  /getsurveys:
+    get:
+      description: "Pulls all surveys and their questions. Use to display surveys and list all available. "
+      responses:
+        '200':
+          description: OK
+          content:
+            json:
+                example: [{"name": "test", "q1": "Whats you name?"}, {"name": "test1", "q1": "Whats you age?"}]
+  /create:
+    post:
+      description: "Create a survye "
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+              example: {"name": "test", "q1": "Whats you name?"}
+      responses:
+        '201':
+          description: OK
+          content:
+            json:
+                example: "Survey named test created successfully. Survey: 200, Votes 200"
+  /pullname/{name}:
+    get:
+      parameters:
+      - name: "name"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        '200':
+          description: OK
+          content:
+            json:
+                example: {"name": "test", "vj": {"q1": "Yes", "q2": "No"}, "bob": {"q1": "Yes", "q2": "No"}}
+      
+  /pull/{user}:
+    get:
+      parameters:
+      - name: "user"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        '200':
+          description: OK
+          content:
+            json:
+                example: [{"test": {"q1": "Yes", "q2": "No"}}]
+  /vote/{name}/{user}:
+    post:
+      requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  additionalProperties:
+                    type: string
+                example: {"q1": "Yes", "q2": "No"}
+      parameters:
+      - name: "name"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "user"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        '200':
+          description: OK
+          content:
+            json:
+                example: {"vj": {"q1": "Yes", "q2": "No"}}
+components: {}

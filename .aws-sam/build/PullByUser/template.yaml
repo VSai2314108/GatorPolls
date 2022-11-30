@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  GatorPollsAPI:
+      Type: AWS::Serverless::Api
+      Properties:
+        Name: GatorPollsAPI
+        StageName: Production
+  CreateSurvey:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.create.create
+      Runtime: python3.9
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+          CreateAPI:
+            Type: Api
+            Properties:
+              RestApiId: !Ref GatorPollsAPI
+              Path: /create
+              Method: POST
+  VoteSurvey:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.vote.vote
+      Runtime: python3.9
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+          VoteAPI:
+            Type: Api
+            Properties:
+              RestApiId: !Ref GatorPollsAPI
+              Path: /vote/{name}/{user}
+              Method: POST
+  PullBySurveyName:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.pullsurvey.pullsurvey
+      Runtime: python3.9
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+          PullNameAPI:
+            Type: Api
+            Properties:
+              RestApiId: !Ref GatorPollsAPI
+              Path: /pullname/{name}
+              Method: GET
+  PullByUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.pulluser.pulluser
+      Runtime: python3.9
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+          PullNameAPI:
+            Type: Api
+            Properties:
+              RestApiId: !Ref GatorPollsAPI
+              Path: /pull/{user}
+              Method: GET
+  GetSurveys:
+      Type: AWS::Serverless::Function
+      Properties:
+        Handler: handlers.getsurveys.getsurveys
+        Runtime: python3.9
+        Policies:
+          - AmazonDynamoDBFullAccess
+        Events:
+            PullNameAPI:
+              Type: Api
+              Properties:
+                RestApiId: !Ref GatorPollsAPI
+                Path: /getsurveys
+                Method: GET
+  Survey:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: name
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: name
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  Votes:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: name
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: name
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
